@@ -824,3 +824,121 @@ body:not(.is-on) #frame{opacity:0}
   :root{--dock-top:120px}
   #ida{right:18px;bottom:20px}
 }
+
+/* 크루 프로필 색 견본 */
+.swatch{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 1px rgba(255,255,255,.25),0 0 6px var(--c)}
+
+/* 카메라 구역 설명 */
+.cam-note{display:none}
+.cam-info{flex:none;padding:16px 4px 2px}
+.cam-title{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cam-title b{font-weight:500;font-size:19px;color:var(--silver)}
+.cam-title span{font-size:11.5px;letter-spacing:.22em;color:var(--dim)}
+.cam-desc{margin-top:6px;font-size:16px;line-height:1.7;color:#cfd9e6;font-weight:300}
+.cam-log{margin-top:8px;font-size:13.5px;color:var(--dim)}
+.cam-log .mono{color:var(--cyan);font-size:11.5px;letter-spacing:.1em;margin-right:4px}
+@media (max-width:760px){
+  .cam-title b{font-size:17px}
+  .cam-desc{font-size:14.5px}
+  .cam-log{font-size:12.5px}
+}
+
+.cam-desc,.cam-log,.rec-memo,.log-list .txt,.st .d,.nav-note{word-break:keep-all}
+
+/* ==========================================================
+   v4 — 크루 패널은 내용 높이만큼 / 모바일 여유 배치
+   ========================================================== */
+#crewPanel{bottom:auto}
+.rec-back{display:none}
+
+@media (max-width:760px){
+  :root{--tabbar-h:64px;--dock-top:64px}
+  body{font-size:15.5px}
+
+  /* 창틀: 하단 탭바 위까지 */
+  #frame{inset:58px 6px calc(var(--tabbar-h) + 16px) 6px}
+
+  /* 하단 탭바 (좌: 01~03 / 우: 04~05) */
+  .rail,.rail-left,.rail-right{
+    top:auto;bottom:8px;width:auto;flex-direction:row;gap:6px;
+  }
+  .rail-left{left:8px;right:calc(40% + 3px)}
+  .rail-right{right:8px;left:calc(60% + 3px)}
+  body.dock-wide-open .rail-right{width:auto}
+  .rail-btn,.rail-right .rail-btn,body.dock-wide-open .rail-right .rail-btn{
+    flex:1;height:var(--tabbar-h);padding:6px 2px;display:grid;place-items:center;grid-template-columns:1fr;
+    background:rgba(5,13,30,.82);
+  }
+  .rail-btn .rb-no,body.dock-wide-open .rail-right .rb-no{
+    display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:var(--silver);line-height:1.2
+  }
+  .rail-btn .rb-short,body.dock-wide-open .rail-right .rb-short{display:block;font-size:11px;letter-spacing:.08em;color:var(--dim)}
+  .rail-btn.active .rb-short{color:var(--cyan)}
+  .rail-btn::before{top:0;bottom:auto;left:0;right:0;width:auto;height:2px}
+  .rail-right .rail-btn::before{left:0;right:0}
+
+  /* 첫 화면 */
+  #hero{padding:96px 20px calc(var(--tabbar-h) + 40px);gap:26px}
+  .hero-title .kicker{font-size:11px}
+  .hero-sub{font-size:15.5px;margin-top:16px}
+  .term-log{font-size:15px;padding:16px 18px 8px}
+  #ida{bottom:calc(var(--tabbar-h) + 28px);right:20px;width:58px}
+
+  /* 패널: 상단 HUD 아래 ~ 탭바 위 전체 시트 */
+  .dock,.dock-left,.dock-right,.dock.full,#crewPanel{
+    top:var(--dock-top);bottom:calc(var(--tabbar-h) + 16px);left:6px;right:6px;width:auto;max-height:none;
+  }
+  .dock .holo-head{padding:16px 20px;font-size:14px}
+  .dock-close{font-size:18px;padding:4px 8px}
+
+  /* 크루: 목록 ↔ 상세 전환 */
+  .dock-body.crew-wrap{display:block;overflow:auto}
+  .crew-wrap .crew-list{border:0;overflow:visible}
+  .crew-wrap .crew-record{display:none;overflow:visible}
+  .crew-wrap.detail .crew-list{display:none}
+  .crew-wrap.detail .crew-record{display:block}
+  .dock .crew-item{padding:18px 20px;font-size:16.5px;gap:14px;grid-template-columns:30px minmax(0,1fr) auto}
+  .dock .crew-item .nm small{font-size:13.5px;margin-top:4px}
+  .dock .chip{font-size:11px;padding:4px 8px}
+  .rec-back{display:inline-block;margin:0 0 20px;padding:8px 14px;font-size:12px;color:var(--cyan);border:1px solid var(--line-strong);border-radius:3px;background:rgba(120,220,255,.06)}
+  .dock .crew-record{padding:22px 22px 30px}
+  .dock .rec-top{grid-template-columns:128px minmax(0,1fr);gap:16px 18px;align-items:end;margin-bottom:24px}
+  .dock .rec-top > div:not(.rec-photo){display:contents}
+  .dock .rec-name{font-size:22px;align-self:end}
+  .dock .rec-name small{font-size:14px;margin-top:6px}
+  .dock .rec-fields{grid-column:1 / -1;margin-top:8px;gap:0;font-size:14px}
+  .dock .rec-fields div{padding:11px 0}
+  .dock .rec-memo{font-size:16px;line-height:1.85;padding:18px 20px}
+  .dock .rec-flag{font-size:13.5px;line-height:1.6}
+
+  /* 일지: 날짜 위, 내용 아래 */
+  .dock .log-list{padding:10px 0;font-size:15.5px}
+  .dock .log-list li{grid-template-columns:1fr;gap:4px;padding:14px 22px;border-bottom:1px solid rgba(150,225,255,.06)}
+  .dock .log-list .day{font-size:12px;padding:0}
+  .dock .log-list li.gap .txt{padding:12px 0}
+
+  /* 상태 / 항법 */
+  .dock .st{padding:16px 22px;gap:14px}
+  .dock .st .k{font-size:15px;flex-wrap:wrap}
+  .dock .st .d{font-size:13.5px;margin-top:4px}
+  .dock .nav-body{padding:24px 22px}
+  .dock .nav-row{font-size:15px;padding:12px 0}
+  .dock .nav-note{font-size:15px}
+
+  /* 카메라 */
+  .cam-body{padding:16px;gap:0}
+  .cam-info{padding:18px 4px 6px}
+  .cam-title b{font-size:18px}
+  .cam-desc{font-size:15.5px;margin-top:8px}
+  .cam-log{font-size:13px;margin-top:10px;line-height:1.6}
+  .cam-body .cam-grid{margin-top:20px;gap:10px}
+  .cam-body .cam-label{font-size:12px}
+  .cam-body .cam-label small{font-size:12.5px}
+}
+/* 창틀은 패널·메뉴보다 아래에 */
+#frame{z-index:1}
+@media (max-width:760px){
+  /* 아이다는 화면 위쪽 하늘에 띄워서 터미널과 겹치지 않게 */
+  #ida{top:84px;bottom:auto;right:22px;width:60px}
+  .ida-bubble{bottom:auto;top:100%;margin-top:8px;border-radius:12px 2px 12px 12px;transform-origin:top right}
+}

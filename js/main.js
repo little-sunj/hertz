@@ -23,7 +23,14 @@ const LINKS   = typeof HERTZ_LINKS !== 'undefined' ? HERTZ_LINKS : { bloom: '#' 
 const CREW = [
   { no:'01', name:'HERTZ', sub:'함장 · 수석 과학자', status:'active', chip:'ACTIVE',
     photo:'assets/hertz.webp',
-    fields:[['FIRST NAME','<span class="warn">DATA LOST</span>'],['AGE','UNKNOWN <span class="dim">(기재값 30)</span>'],['STATUS','ACTIVE — 유일 생존'],['LAST LOGIN','NOW']],
+    fields:[
+      ['FIRST NAME','<span class="warn">DATA LOST</span>'],
+      ['GENDER','남성'],
+      ['AGE','UNKNOWN <span class="dim">(기재값 30)</span>'],
+      ['HEIGHT','188cm'],
+      ['LOOKS','<span class="swatch" style="--c:#cfd3da"></span>애쉬그레이 <span class="dim">/</span> <span class="swatch" style="--c:#8b939e"></span>회안'],
+      ['STATUS','ACTIVE — 유일 생존'],
+      ['LAST LOGIN','NOW']],
     memo:null, flag:'원본 인사 기록 손상 — 이름 복구 불가' },
   { no:'02', name:'Yuri Belkov', sub:'부함장 · 항법장', status:'dead', chip:'DECEASED',
     fields:[['DATE','DAY 1,156'],['CAUSE','선외 작업 중 사고'],['ACCESS COUNT','1,904']],
@@ -64,9 +71,6 @@ const CREW = [
     photo:'assets/ida.webp', photoClass:'ida',
     fields:[['ACTIVATED','DAY 2,231'],['REGISTERED BY','CAPTAIN'],['NOTE','비공식 등록']],
     memo:'아이다도 승무원이에욤! 비공식이지만욤!', memoBy:'IDA' },
-  { no:'??', name:'UNREGISTERED', sub:'신원 미확인', status:'unreg', chip:'PENDING',
-    fields:[['SIGNAL ORIGIN','EARTH <span class="dim">(추정)</span>'],['ERA','산출 중'],['REGISTRATION','대기']],
-    memo:'', memoBy:'CAPTAIN', pending:true },
 ];
 
 const STATUS = [
@@ -105,14 +109,30 @@ const LOG = [
 ];
 
 const CAMS = [
-  { id:'CAM-01', name:'관측 돔',     img:'assets/ship/dome.webp',          note:'체류 기록 최다 구역. 최근 출입 6시간 전.' },
-  { id:'CAM-02', name:'분석실',      img:'assets/ship/analysis.webp',      note:'좌표 연산 프로세스 상시 가동 중. 중단 이력 없음.' },
-  { id:'CAM-03', name:'승무원 구역',  img:'assets/ship/crew-quarters.webp', note:'조명 OFF. DAY 2,214 이후 출입 기록 없음.', dark:true, tag:'LIGHTS OFF' },
-  { id:'CAM-04', name:'정비실',      img:'assets/ship/maintenance.webp',   note:'3번 공구함 — 마지막 정리 DAY 0845. 변경 없음.' },
-  { id:'CAM-05', name:'테라포밍 모듈', img:'assets/ship/terraforming.webp',  note:'배양조 생존 37종. 급수 기록: 매일, 같은 시각.' },
-  { id:'CAM-06', name:'함장실',      img:'assets/ship/captain.webp',       note:'취침 기록 불규칙. 최근 수신기 앞에서 잠든 기록 3회.' },
-  { id:'CAM-07', name:'선체 외부',    img:'assets/ship/exterior.webp',      note:'EXT CAM. 선체 손상률 12%. 항행 가능.', tag:'EXT' },
-  { id:'CAM-08', name:'브릿지',      nosig:true },
+  { id:'CAM-01', name:'관측 돔',     en:'OBSERVATION DOME', img:'assets/ship/dome.webp',
+    desc:'360도 투명 돔 아래 소파 하나. 성운과 별이 쏟아지듯 보인다.',
+    note:'체류 기록 최다 구역. 최근 출입 6시간 전.' },
+  { id:'CAM-02', name:'분석실',      en:'ANALYSIS LAB', img:'assets/ship/analysis.webp',
+    desc:'좌표 계산 메인프레임이 있는 곳. 벽면 가득 홀로그램 수식이 떠 있다.',
+    note:'좌표 연산 프로세스 상시 가동 중. 중단 이력 없음.' },
+  { id:'CAM-03', name:'승무원 구역',  en:'CREW QUARTERS', img:'assets/ship/crew-quarters.webp', dark:true, tag:'LIGHTS OFF',
+    desc:'동료들이 쓰던 선실이 늘어선 복도. 지금은 모두 잠겨 있다.',
+    note:'조명 OFF. DAY 2,214 이후 출입 기록 없음.' },
+  { id:'CAM-04', name:'정비실',      en:'MAINTENANCE BAY', img:'assets/ship/maintenance.webp',
+    desc:'함선 동력로와 정비 장비, 아이다의 충전 스테이션이 있는 구역.',
+    note:'3번 공구함 — 마지막 정리 DAY 0845. 변경 없음.' },
+  { id:'CAM-05', name:'테라포밍 모듈', en:'TERRAFORMING', img:'assets/ship/terraforming.webp',
+    desc:'인공 햇빛 아래 지구의 흙과 식물을 재현한 작은 생태 구역.',
+    note:'배양조 생존 37종. 급수 기록: 매일, 같은 시각.' },
+  { id:'CAM-06', name:'함장실',      en:"CAPTAIN'S CABIN", img:'assets/ship/captain.webp',
+    desc:'브릿지 바로 뒤의 집무실 겸 선실. 책상 위엔 지구에서 가져온 조약돌 하나.',
+    note:'취침 기록 불규칙. 최근 수신기 앞에서 잠든 기록 3회.' },
+  { id:'CAM-07', name:'선체 외부',    en:'EXTERIOR', img:'assets/ship/exterior.webp', tag:'EXT',
+    desc:'헤르츠가 직접 설계한 성간 탐사선. 좌표를 잃고 표류 중인 거대한 선체.',
+    note:'EXT CAM. 선체 손상률 12%. 항행 가능.' },
+  { id:'CAM-08', name:'브릿지',      en:'BRIDGE', nosig:true,
+    desc:'함선을 조종하는 중앙 지휘 구역. 우주를 향한 대형 창 앞, 헤르츠가 가장 오래 머무는 곳.',
+    note:'송출 중지 — 함장 요청. 현재 화면을 송출 중인 구역.' },
 ];
 
 const IDA_LINES = [
@@ -515,7 +535,8 @@ function renderCrew() {
     li.innerHTML = `<span class="no">${c.no}</span><span class="nm">${nm}<small>${c.sub}</small></span><span class="chip ${c.status}">${c.chip}</span>`;
     li.addEventListener('click', () => {
       selectCrew(i);
-      if (innerWidth <= 980) $('#crewRecord').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      if (innerWidth <= 760) { const w = $('#crewPanel .crew-wrap'); w.classList.add('detail'); w.scrollTop = 0; }
+      else if (innerWidth <= 980) $('#crewRecord').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
     ul.append(li);
   });
@@ -535,6 +556,7 @@ function selectCrew(i) {
   else if (c.memo) memo = `<div class="rec-memo"><span class="mono">MEMO — ${c.memoBy || 'CAPTAIN'}</span>${c.memo}</div>`;
   else memo = `<div class="rec-memo"><span class="mono">MEMO</span><span class="dim">작성 내역 없음</span></div>`;
   rec.innerHTML = `<div class="rec-in">
+      <button class="rec-back mono" type="button">← CREW LIST</button>
       <div class="rec-top">${photo}<div><div class="rec-name">${nm}<small>${c.sub}</small></div><div class="rec-fields">${fields}</div></div></div>
       ${memo}${c.flag ? `<div class="rec-flag">⚠ ${c.flag}</div>` : ''}
     </div>`;
@@ -542,6 +564,10 @@ function selectCrew(i) {
   // 이전 기록의 노이즈 캔버스 정리
   noiseTargets.forEach(t => { if (!t.isConnected) noiseTargets.delete(t); });
   if (cv) addNoise(cv, 44, 55);
+  rec.querySelector('.rec-back').addEventListener('click', () => {
+    $('#crewPanel .crew-wrap').classList.remove('detail');
+    $('#crewPanel .crew-wrap').scrollTop = 0;
+  });
 }
 
 /* ==========================================================
@@ -577,7 +603,10 @@ function renderCams() {
         <span class="cam-label">${c.id}<small>${c.name}</small></span>
         ${c.tag ? `<span class="cam-tag">${c.tag}</span>` : ''}`;
     }
-    el.addEventListener('click', () => showCam(idx));
+    el.addEventListener('click', () => {
+      showCam(idx);
+      if (innerWidth <= 980) $('#camPanel .dock-body').scrollTo({ top: 0, behavior: 'smooth' });
+    });
     grid.append(el);
   });
   showCam(0);
@@ -594,12 +623,13 @@ function showCam(idx) {
   if (c.nosig) {
     $('#camMainImg').removeAttribute('src');
     $('#camMainNs span').textContent = '송출 중지 — 함장 요청';
-    $('#camMainNote').textContent = '현재 화면을 송출 중인 구역입니다.';
   } else {
     $('#camMainImg').src = c.img;
     $('#camMainImg').alt = c.name;
-    $('#camMainNote').textContent = c.note || '';
   }
+  $('#camMainTitle').innerHTML = `<b>${c.name}</b><span class="mono">${c.en || ''}</span>`;
+  $('#camMainDesc').textContent = c.desc || '';
+  $('#camMainNote').textContent = c.note || '';
 }
 function openCam(c) {
   $('#camModalTitle').textContent = `${c.id} — ${c.name}`;
@@ -713,6 +743,7 @@ function toggleDock(id) { openDock && openDock.id === id ? closeDock() : showDoc
 function showDock(id) {
   const d = document.getElementById(id); if (!d) return;
   if (openDock && openDock !== d) closeDock(true);
+  if (id === 'crewPanel') $('#crewPanel .crew-wrap').classList.remove('detail');
   openDock = d;
   const side = d.classList.contains('dock-right') ? 'right' : 'left';
   d.classList.remove('open'); void d.offsetWidth; d.classList.add('open');
