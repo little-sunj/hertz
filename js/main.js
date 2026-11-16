@@ -12,6 +12,25 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* 배포 환경에서만 우클릭·개발자도구 단축키 막기 (로컬에서는 허용) */
+const IS_LOCAL = location.protocol === 'file:' ||
+  ['localhost', '127.0.0.1', '0.0.0.0', '[::1]', ''].includes(location.hostname) ||
+  location.hostname.endsWith('.local');
+if (!IS_LOCAL) {
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('dragstart', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
+  document.addEventListener('keydown', e => {
+    const k = (e.key || '').toLowerCase();
+    const mod = e.ctrlKey || e.metaKey;
+    if (k === 'f12' ||
+        (mod && e.shiftKey && ['i', 'j', 'c'].includes(k)) ||   // 개발자도구
+        (mod && e.altKey && ['i', 'j', 'c'].includes(k)) ||     // macOS 개발자도구
+        (mod && ['u', 's'].includes(k))) {                      // 소스 보기, 저장
+      e.preventDefault(); e.stopPropagation();
+    }
+  }, true);
+}
+
 const SCENES  = (typeof HERTZ_SCENES !== 'undefined' ? HERTZ_SCENES : []).filter(s => s && s.file);
 const SCENE_S = typeof HERTZ_SCENE_SECONDS !== 'undefined' ? HERTZ_SCENE_SECONDS : 45;
 const SHUFFLE = typeof HERTZ_SCENE_SHUFFLE !== 'undefined' ? HERTZ_SCENE_SHUFFLE : false;
@@ -269,30 +288,44 @@ $('#signalBtn').addEventListener('click', () => {
 audio.addEventListener('pause', () => { audioOn = false; setAudioUI(false); });
 audio.addEventListener('play',  () => { audioOn = true;  setAudioUI(true); });
 
+/* 파형: 실제 음악 파형을 점 수를 줄이고 프레임마다 천천히 따라가게 해서 느긋하게 */
+const SCOPE_W = 120, SCOPE_H = 28, SDPR = Math.min(2, window.devicePixelRatio || 1);
+scope.width = SCOPE_W * SDPR; scope.height = SCOPE_H * SDPR;
+const SCOPE_N = 40;                         // 점 개수 (적을수록 매끈)
+const scopePts = new Float32Array(SCOPE_N + 1);
 function drawScope(t) {
-  const w = scope.width, h = scope.height;
-  sctx.clearRect(0, 0, w, h);
-  sctx.lineWidth = 1.2;
+  for (let i = 0; i <= SCOPE_N; i++) {
+    let target = 0;
+    if (audioOn) {
+      if (analyser) {
+        // 주변 샘플 평균으로 거친 떨림 제거
+        if (i === 0) analyser.getByteTimeDomainData(scopeData);
+        const c = Math.floor(i / SCOPE_N * (scopeData.length - 1)), r = 5;
+        let sum = 0, n = 0;
+        for (let k = Math.max(0, c - r); k <= Math.min(scopeData.length - 1, c + r); k++) { sum += scopeData[k] / 128 - 1; n++; }
+        target = Math.max(-1, Math.min(1, (sum / n) * 2.6));
+      } else {
+        const x = i / SCOPE_N;
+        target = (Math.sin(x * 22 + t / 260) * .45 + Math.sin(x * 57 - t / 150) * .25 + Math.sin(x * 9 + t / 600) * .3)
+               * (.5 + .5 * Math.sin(t / 900 + x * 3)) * .9;
+      }
+    }
+    scopePts[i] += (target - scopePts[i]) * .16;   // 천천히 따라가기
+  }
+  sctx.setTransform(SDPR, 0, 0, SDPR, 0, 0);
+  sctx.clearRect(0, 0, SCOPE_W, SCOPE_H);
+  const mid = SCOPE_H / 2, amp = SCOPE_H / 2 - 3;
+  sctx.lineWidth = 1.3; sctx.lineJoin = 'round'; sctx.lineCap = 'round';
   sctx.strokeStyle = audioOn ? 'rgba(158,234,255,.95)' : 'rgba(123,138,163,.6)';
   sctx.shadowColor = 'rgba(120,220,255,.8)'; sctx.shadowBlur = audioOn ? 4 : 0;
   sctx.beginPath();
-  if (analyser && audioOn) {
-    analyser.getByteTimeDomainData(scopeData);
-    for (let i = 0; i < w; i++) {
-      const v = scopeData[Math.floor(i / w * scopeData.length)] / 128 - 1;
-      const y = h / 2 + v * h * .9;
-      i ? sctx.lineTo(i, y) : sctx.moveTo(i, y);
-    }
-  } else {
-    const amp = audioOn ? 1 : .08;
-    for (let i = 0; i < w; i++) {
-      const x = i / w;
-      const v = (Math.sin(x * 22 + t / 180) * .45 + Math.sin(x * 57 - t / 95) * .25 + Math.sin(x * 9 + t / 400) * .3)
-              * (.5 + .5 * Math.sin(t / 700 + x * 3)) * amp;
-      const y = h / 2 + v * h * .42;
-      i ? sctx.lineTo(i, y) : sctx.moveTo(i, y);
-    }
+  const px = i => i / SCOPE_N * SCOPE_W, py = i => mid + scopePts[i] * amp;
+  sctx.moveTo(px(0), py(0));
+  for (let i = 1; i < SCOPE_N; i++) {               // 점 사이를 곡선으로 이어 각진 느낌 제거
+    const mx = (px(i) + px(i + 1)) / 2, my = (py(i) + py(i + 1)) / 2;
+    sctx.quadraticCurveTo(px(i), py(i), mx, my);
   }
+  sctx.lineTo(px(SCOPE_N), py(SCOPE_N));
   sctx.stroke();
 }
 
@@ -656,11 +689,12 @@ function termPush(text, sys) {
       line.innerHTML = '<span class="who">HERTZ ▸</span>';
       const span = document.createElement('span');
       line.append(span);
-      for (const ch of text) { span.textContent += ch; await wait(ch === ' ' ? 30 : rand(45, 85)); }
+      for (const ch of text) { span.textContent += ch; termLog.scrollTop = termLog.scrollHeight; await wait(ch === ' ' ? 30 : rand(45, 85)); }
     }
+    termLog.scrollTop = termLog.scrollHeight;
     // 오래된 줄 정리
     const lines = $$('.term-line', termLog);
-    while (lines.length > 6) lines.shift().remove();
+    while (lines.length > 14) lines.shift().remove();
   });
   return typing;
 }

@@ -959,3 +959,31 @@ body:not(.is-on) #frame{opacity:0}
   body.dock-open #screenFx .band,
   body.dock-open #dust{visibility:hidden}
 }
+
+
+/* 타이틀 아래 크레딧 */
+.hero-credit{
+  display:inline-flex;align-items:center;gap:0;margin-top:22px;padding-top:14px;
+  border-top:1px solid rgba(150,225,255,.22);
+  font-size:12px;letter-spacing:.16em;color:#8796ae;text-shadow:0 1px 10px rgba(0,0,0,.8);
+}
+.hero-credit i{font-style:normal;margin:0 .7em;color:rgba(150,225,255,.45)}
+@media (max-width:760px){
+  .hero-credit{font-size:10.5px;letter-spacing:.1em;margin-top:16px;padding-top:12px}
+  .hero-credit i{margin:0 .5em}
+}
+
+/* 통신 터미널: 넘치면 스크롤, 항상 최신 줄이 보이게 */
+.term-log{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(150,225,255,.25) transparent}
+.term-log::-webkit-scrollbar{width:3px}
+.term-log::-webkit-scrollbar-thumb{background:rgba(150,225,255,.25)}
+@media (max-width:760px){
+  .term-log{
+    min-height:0;max-height:124px;padding:10px 18px 10px;font-size:14.5px;line-height:1.85;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16px,#000 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 16px,#000 100%);
+  }
+  #terminal .holo-head{padding:10px 18px}
+  .term-foot{padding:8px 18px 10px}
+  #hero{gap:20px}
+}
