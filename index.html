@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HERTZ — 심우주 탐사선 수신 기록</title>
+<meta name="description" content="650년 너머, 좌표를 잃은 탐사선에서 온 신호.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans+Condensed:wght@200;300;400&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-locked">
+
+<!-- ================= 창밖 ================= -->
+<div id="window" aria-hidden="true">
+  <div class="scene" id="sceneA"></div>
+  <div class="scene" id="sceneB"></div>
+  <canvas id="dust"></canvas>
+  <div class="reflection"><img src="assets/hertz.webp" alt=""></div>
+  <div class="lens-warp"></div>
+  <div class="glass"></div>
+  <div class="tint"></div>
+</div>
+
+<!-- 화면 질감 + 창틀 -->
+<div id="screenFx" aria-hidden="true"><i class="grain"></i><i class="band"></i></div>
+<div id="frame" aria-hidden="true"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></div>
+
+<!-- 영상 신호가 스치는 한 프레임 -->
+<div id="ghostFrame" aria-hidden="true"><img src="assets/hertz.webp" alt=""></div>
+
+<!-- ================= 상단 HUD ================= -->
+<header id="hud">
+  <div class="hud-left">
+    <span class="hud-mark"></span>
+    <span class="mono dim">DEEP SPACE EXPLORATION VESSEL</span>
+    <span class="mono">REG. DSX-3147-A</span>
+  </div>
+  <div class="hud-center mono" id="viewLabel"><span class="dim">VIEW</span> <span id="viewText">—</span></div>
+  <div class="hud-right">
+    <div class="hud-cell"><span class="dim mono">SHIP DATE</span><span class="mono flicker">UNKNOWN</span></div>
+    <div class="hud-cell"><span class="dim mono">LINK</span><span class="mono" id="linkTimer">00:00:00</span></div>
+    <button id="signalBtn" class="signal-btn" aria-label="BGM 켜기/끄기">
+      <canvas id="scope" width="120" height="28"></canvas>
+      <span class="mono" id="signalText">SIGNAL ON</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 첫 화면 ================= -->
+  <section id="hero">
+    <div class="hero-title boot">
+      <p class="mono dim kicker">QUANTUM LINK // INCOMING TRANSMISSION</p>
+      <h1>HERTZ</h1>
+      <p class="hero-sub">좌표를 잃은 탐사선의 마지막 생존자.<br>그의 수신기에, 아주 먼 과거의 지구가 닿았다.</p>
+    </div>
+
+    <div class="holo boot" id="terminal">
+      <div class="holo-head">
+        <span class="mono">COMM TERMINAL</span>
+        <span class="lens" id="lens" title="광학 장치"><i></i></span>
+      </div>
+      <div class="term-log mono" id="termLog"></div>
+      <div class="term-foot">
+        <div class="bw" id="bandwidth" title="">
+          <span class="bw-seg on"><svg viewBox="0 0 16 16"><path d="M2 3h12v8H7l-3 3v-3H2z"/></svg></span>
+          <span class="bw-seg"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5"/><circle cx="8" cy="8" r="2"/></svg></span>
+          <span class="bw-seg"><svg viewBox="0 0 16 16"><path d="M8 2l5 3v6l-5 3-5-3V5z M8 2v6 M3 5l5 3 5-3"/></svg></span>
+          <span class="bw-tip mono">BANDWIDTH INSUFFICIENT</span>
+        </div>
+        <a class="term-reply mono" href="#" data-bloom>&gt; 응답하기<span class="caret"></span></a>
+      </div>
+    </div>
+
+    <p class="credit mono dim boot">HERTZ · 반엽 · BGM “Distance Does Not Matter”</p>
+  </section>
+
+  <!-- ================= 접힌 메뉴 (좌) ================= -->
+  <nav class="rail rail-left boot" aria-label="함선 기록">
+    <p class="rail-head mono dim">ARCHIVE</p>
+    <button class="rail-btn" data-dock="crewPanel" aria-expanded="false">
+      <span class="rb-no mono">01<i class="rb-short">CREW</i></span>
+      <span class="rb-txt"><b class="mono">CREW DATABASE</b><small>승무원 기록</small></span>
+      <span class="rb-stat mono">1/12</span>
+    </button>
+    <button class="rail-btn" data-dock="logPanel" aria-expanded="false">
+      <span class="rb-no mono">02<i class="rb-short">LOG</i></span>
+      <span class="rb-txt"><b class="mono">CAPTAIN'S LOG</b><small>함장 일지</small></span>
+      <span class="rb-stat mono">AUTH</span>
+    </button>
+    <button class="rail-btn" data-dock="camPanel" aria-expanded="false">
+      <span class="rb-no mono">03<i class="rb-short">CAM</i></span>
+      <span class="rb-txt"><b class="mono">INTERNAL CAM</b><small>함내 카메라</small></span>
+      <span class="rb-stat mono live">LIVE</span>
+    </button>
+  </nav>
+
+  <!-- ================= 접힌 메뉴 (우) ================= -->
+  <nav class="rail rail-right boot" aria-label="함선 계기">
+    <p class="rail-head mono dim">SYSTEMS</p>
+    <button class="rail-btn" data-dock="statusPanel" aria-expanded="false">
+      <span class="rb-no mono">04<i class="rb-short">SYS</i></span>
+      <span class="rb-txt"><b class="mono">SYSTEM STATUS</b><small>함선 상태</small></span>
+      <span class="rb-stat mono" id="rbStatus">11</span>
+    </button>
+    <button class="rail-btn" data-dock="navPanel" aria-expanded="false">
+      <span class="rb-no mono">05<i class="rb-short">NAV</i></span>
+      <span class="rb-txt"><b class="mono">NAVIGATION</b><small>항법</small></span>
+      <span class="rb-stat mono warn">LOST</span>
+    </button>
+  </nav>
+
+  <!-- ================= 펼쳐지는 패널 ================= -->
+  <div class="holo dock dock-left full" id="crewPanel" role="dialog" aria-label="CREW DATABASE">
+    <div class="holo-head">
+      <span class="mono">01 · CREW DATABASE</span>
+      <span class="head-r"><span class="mono dim">ACTIVE 1 / 12</span><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body crew-wrap">
+      <ul class="crew-list" id="crewList"></ul>
+      <div class="crew-record" id="crewRecord"></div>
+    </div>
+  </div>
+
+  <div class="holo dock dock-left" id="logPanel" role="dialog" aria-label="CAPTAIN'S LOG">
+    <div class="holo-head">
+      <span class="mono">02 · CAPTAIN'S LOG</span>
+      <span class="head-r"><span class="mono dim">AUTH: CAPTAIN</span><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body"><ol class="log-list mono" id="logList"></ol></div>
+  </div>
+
+  <div class="holo dock dock-left full" id="camPanel" role="dialog" aria-label="INTERNAL CAMERAS">
+    <div class="holo-head">
+      <span class="mono">03 · INTERNAL CAMERAS</span>
+      <span class="head-r"><span class="mono dim">7 FEEDS</span><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body cam-body">
+      <div class="cam-main">
+        <div class="cam-screen" id="camScreen">
+          <img id="camMainImg" alt="">
+          <canvas id="camMainNoise"></canvas>
+          <div class="cam-screen-ns mono" id="camMainNs"><b>NO SIGNAL</b><span></span></div>
+          <span class="cam-label big" id="camMainLabel"></span>
+          <span class="cam-rec big" id="camMainRec">LIVE</span>
+          <span class="cam-tag big" id="camMainTag"></span>
+          <span class="cam-time big" data-camtime></span>
+        </div>
+        <p class="cam-note" id="camMainNote"></p>
+      </div>
+      <div class="cam-grid" id="camGrid"></div>
+    </div>
+  </div>
+
+  <div class="holo dock dock-right" id="statusPanel" role="dialog" aria-label="SYSTEM STATUS">
+    <div class="holo-head">
+      <span class="mono">04 · SYSTEM STATUS</span>
+      <span class="head-r"><span class="mono dim" id="statusClock">--</span><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body"><ul class="status-list" id="statusList"></ul></div>
+  </div>
+
+  <div class="holo dock dock-right narrow" id="navPanel" role="dialog" aria-label="NAVIGATION">
+    <div class="holo-head">
+      <span class="mono">05 · NAVIGATION</span>
+      <span class="head-r"><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body nav-body">
+      <div class="mono nav-row"><span class="dim">POSITION</span><span class="warn">LOST</span></div>
+      <div class="mono nav-row"><span class="dim">SECTOR</span><span>UNKNOWN</span></div>
+      <div class="mono nav-row"><span class="dim">HEADING</span><span class="dim">— 항로 미정</span></div>
+      <div class="mono nav-row"><span class="dim">REFERENCE POINT</span><span id="refPoint">1 DETECTED</span></div>
+      <div class="nav-sep"></div>
+      <p class="mono dim nav-cap">COORDINATE RECALCULATION</p>
+      <div class="coord-bar"><i id="coordBar"></i></div>
+      <div class="mono nav-row"><span class="dim">ANCHOR SIGNAL</span><span class="cy" id="anchorSig">STABLE</span></div>
+      <p class="nav-note">외부 기준점 1개 확보. 연산 지속 중.</p>
+    </div>
+  </div>
+</main>
+
+<!-- ================= 아이다 ================= -->
+<div id="ida" aria-label="아이다">
+  <div class="ida-bubble" id="idaBubble"></div>
+  <img src="assets/ida.webp" alt="아이다">
+</div>
+
+<!-- ================= 카메라 확대 ================= -->
+<div id="camModal" aria-hidden="true">
+  <div class="cam-modal-inner holo">
+    <div class="holo-head"><span class="mono" id="camModalTitle"></span><button class="mono close" id="camClose">CLOSE ✕</button></div>
+    <div class="cam-modal-view"><img id="camModalImg" alt=""><div class="cam-noise"></div></div>
+    <p class="cam-modal-note mono" id="camModalNote"></p>
+  </div>
+</div>
+
+<!-- ================= 수신 인트로 ================= -->
+<div id="intro">
+  <canvas id="introNoise"></canvas>
+  <div class="intro-box">
+    <p class="mono dim" id="introLine1">QUANTUM RECEIVER — STANDBY</p>
+    <p class="mono" id="introLine2">미확인 신호 감지<span class="caret"></span></p>
+    <button id="receiveBtn" class="mono">[ 수신 ]</button>
+    <p class="mono dim small">소리가 함께 재생됩니다</p>
+  </div>
+</div>
+
+<audio id="bgm" src="assets/bgm.mp3" loop preload="auto"></audio>
+
+<script src="config.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
