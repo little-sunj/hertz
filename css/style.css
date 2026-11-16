@@ -942,3 +942,20 @@ body:not(.is-on) #frame{opacity:0}
   #ida{top:84px;bottom:auto;right:22px;width:60px}
   .ida-bubble{bottom:auto;top:100%;margin-top:8px;border-radius:12px 2px 12px 12px;transform-origin:top right}
 }
+
+/* ==========================================================
+   모바일: 패널을 열었을 때만 지직거림 줄이기
+   - 움직이는 배경 위에 블러 시트가 매 프레임 다시 그려지며 생기던 떨림 제거
+   ========================================================== */
+@media (max-width:760px){
+  body.dock-open .dock{
+    background:rgba(4,10,24,.94);
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+    animation:none;
+  }
+  body.dock-open .dock::before{display:none}
+  body.dock-open #screenFx .grain,
+  body.dock-open .scene.drift{animation-play-state:paused}
+  body.dock-open #screenFx .band,
+  body.dock-open #dust{visibility:hidden}
+}
