@@ -355,7 +355,7 @@ async function nextScene(tries = 0) {
 const fxTimers = [];
 function clearFx() {
   fxTimers.splice(0).forEach(clearTimeout);
-  document.body.classList.remove('fx-blackhole','fx-redshift','is-reflecting');
+  document.body.classList.remove('fx-blackhole','fx-redshift');
   $('#viewText').classList.remove('alert');
   setStatus('sensor', 'ONLINE', '', '');
   setStatus('terra', 'STANDBY', '대상 행성 없음', 'warn');
@@ -375,13 +375,10 @@ function applySceneFx(s) {
     case 'blackhole':
       document.body.classList.add('fx-blackhole');
       dilationTarget = rand(1.6, 2.4);
-      later(() => document.body.classList.add('is-reflecting'), 9000);
-      later(() => document.body.classList.remove('is-reflecting'), 24000);
       break;
     case 'wormhole':
       later(() => commNoise(3200, true), 3500);
       later(() => $$('.holo.boot.on, .dock.open').forEach(p => { p.classList.remove('glitch'); void p.offsetWidth; p.classList.add('glitch'); }), 3600);
-      if (Math.random() < .55) later(hologramFlash, 14000);
       dilationTarget = rand(1.2, 1.5);
       break;
     case 'nebula':
@@ -402,10 +399,6 @@ function applySceneFx(s) {
       break;
     case 'galaxy':
     default:
-      if (Math.random() < .5) {
-        later(() => document.body.classList.add('is-reflecting'), 12000);
-        later(() => document.body.classList.remove('is-reflecting'), 26000);
-      }
   }
 }
 function sensorStutter(n) {
@@ -418,11 +411,6 @@ function sensorStutter(n) {
   tick();
 }
 
-/* 홀로그램 실루엣 (드물게) */
-function hologramFlash() {
-  const g = $('#ghostFrame');
-  g.classList.remove('flash'); void g.offsetWidth; g.classList.add('flash');
-}
 
 /* ==========================================================
    먼지/별 입자
