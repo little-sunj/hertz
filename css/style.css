@@ -1005,3 +1005,33 @@ body:not(.is-on) #frame{opacity:0}
 }
 /* 부팅 애니메이션이 끝난 뒤엔 잘라내기(clip) 해제 → 어둠이 부드럽게 퍼지도록 */
 .hero-title.boot.on{animation-fill-mode:backwards}
+
+/* ==========================================================
+   모바일: 지직거리는 효과 전부 제거
+   - 패널 열림: 번쩍임·블러·잘라내기·빛줄기 대신 부드러운 페이드+슬라이드
+   - 화면 전환·글리치·노이즈 애니메이션 끔
+   ========================================================== */
+@media (max-width:760px){
+  .dock,.dock-left,.dock-right,.dock.full{
+    clip-path:none!important;filter:none!important;
+    transform:translateY(14px);
+    transition:opacity .35s ease,transform .35s ease,visibility 0s linear .35s!important;
+  }
+  .dock.open{
+    transform:none;
+    transition:opacity .35s ease,transform .35s ease,visibility 0s!important;
+  }
+  .dock .sweep{display:none}
+  .dock .holo-head{animation:none!important}
+  .holo.glitch{animation:none!important}
+  .term-log.noise::after{display:none}
+  .term-ghost{display:none}
+  .cam-screen.switch img{animation:none}
+  .rec-in{animation:recInM .3s ease}
+  @keyframes recInM{from{opacity:0}to{opacity:1}}
+  .rail-btn::after{display:none}
+  .rail-btn.ping{animation:none}
+  /* 패널이 열려 있을 때 뒤 화면 효과는 모두 정지 */
+  body.dock-open #screenFx{display:none}
+  body.dock-open .scene{transition:none}
+}
