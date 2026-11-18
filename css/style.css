@@ -979,11 +979,29 @@ body:not(.is-on) #frame{opacity:0}
 .term-log::-webkit-scrollbar-thumb{background:rgba(150,225,255,.25)}
 @media (max-width:760px){
   .term-log{
-    min-height:0;max-height:124px;padding:10px 18px 10px;font-size:14.5px;line-height:1.85;
-    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16px,#000 100%);
-            mask-image:linear-gradient(180deg,transparent 0,#000 16px,#000 100%);
+    min-height:0;max-height:calc(14.5px * 1.85 * 2 + 18px);padding:8px 18px 10px;font-size:14.5px;line-height:1.85;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 10px,#000 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 10px,#000 100%);
   }
   #terminal .holo-head{padding:10px 18px}
   .term-foot{padding:8px 18px 10px}
   #hero{gap:20px}
 }
+
+/* 타이틀 영역 뒤를 은은하게 어둡게 (배경에 글씨가 묻히지 않도록) */
+.hero-title{position:relative;isolation:isolate;justify-self:start;width:max-content;max-width:100%}
+.hero-title::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  left:-12%;right:-10%;top:-30%;bottom:-28%;
+  background:radial-gradient(ellipse farthest-side at 48% 55%,
+    rgba(2,5,14,.78) 0%,rgba(2,5,14,.7) 38%,rgba(2,5,14,.42) 64%,rgba(2,5,14,.14) 84%,transparent 100%);
+  filter:blur(8px);
+}
+@media (max-width:760px){
+  /* 모바일은 타이틀이 화면 폭 전체라, 가로로 넓은 띠 모양으로 */
+  .hero-title{width:auto;justify-self:stretch}
+  .hero-title::before{left:-24px;right:-24px;top:-30%;bottom:-22%;filter:blur(4px);
+    background:linear-gradient(180deg,transparent 0%,rgba(2,5,14,.55) 20%,rgba(2,5,14,.72) 45%,rgba(2,5,14,.72) 80%,transparent 100%)}
+}
+/* 부팅 애니메이션이 끝난 뒤엔 잘라내기(clip) 해제 → 어둠이 부드럽게 퍼지도록 */
+.hero-title.boot.on{animation-fill-mode:backwards}
