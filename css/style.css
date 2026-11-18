@@ -1035,3 +1035,81 @@ body:not(.is-on) #frame{opacity:0}
   body.dock-open #screenFx{display:none}
   body.dock-open .scene{transition:none}
 }
+
+/* ==========================================================
+   06 QUANTUM LINK 패널 — 실제 통신 장비 화면
+   ========================================================== */
+#linkPanel{--dock-w:600px}
+.link-body{padding:6px 0 14px}
+.lk-head-st{color:var(--ok)!important}
+.lk-sec{padding:16px 24px 6px;border-bottom:1px solid rgba(150,225,255,.07)}
+.lk-cap{font-size:11.5px;letter-spacing:.2em;color:var(--cyan);margin-bottom:8px}
+.lk-cap-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lk-sync{font-size:12px;color:var(--dim)}
+.lk-sync b{font-weight:500;color:var(--silver)}
+.lk-grid{display:grid}
+.lk-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:8px 0;border-bottom:1px dashed rgba(150,225,255,.07);font-size:14.5px}
+.lk-row:last-child{border-bottom:0}
+.lk-row > span:first-child{font-size:12.5px;letter-spacing:.04em;white-space:nowrap}
+.lk-row > span:last-child{text-align:right;color:var(--silver)}
+.lk-row .ok{color:var(--ok)!important}
+.lk-row .warn{color:var(--warn)!important}
+.lk-row .lock{color:var(--dim)!important;font-size:13px}
+.lk-row .lock small{display:block;font-family:var(--kr);font-size:12px;color:#5f6c84;letter-spacing:0}
+.lk-scope{position:relative;height:110px;margin:6px 0 12px;border:1px solid var(--line);border-radius:3px;background:
+  linear-gradient(rgba(150,225,255,.06) 1px,transparent 1px) 0 0/100% 25%,
+  linear-gradient(90deg,rgba(150,225,255,.06) 1px,transparent 1px) 0 0/10% 100%,rgba(2,6,16,.5)}
+.lk-scope canvas{position:absolute;inset:0;width:100%;height:100%}
+.lk-leg{position:absolute;bottom:6px;font-size:10.5px}
+.lk-leg.a{left:10px;color:#9eeaff}
+.lk-leg.b{left:90px;color:#ffbe6e}
+.lk-log{list-style:none;font-size:12.5px;line-height:1.7}
+.lk-log li{display:grid;grid-template-columns:78px minmax(0,1fr);gap:12px;padding:6px 0;color:#aebbcd;font-family:var(--kr);word-break:keep-all}
+.lk-log li span{font-family:var(--mono);color:var(--dim);font-size:11.5px;padding-top:1px}
+.lk-log li.now{color:var(--cyan)}
+.lk-log li.now span{color:var(--cyan)}
+.lk-memo{margin:16px 24px 6px;padding:14px 18px;border-left:2px solid var(--line-strong);background:rgba(120,220,255,.04)}
+.lk-memo .mono{font-size:11px;color:var(--dim);margin-bottom:6px}
+.lk-memo p:not(.mono){font-size:15px;line-height:1.85;color:#d3dce8;font-weight:300}
+@media (max-width:760px){
+  .lk-sec{padding:14px 18px 6px}
+  .lk-memo{margin:14px 18px 6px}
+  .lk-row{font-size:14px}
+  .lk-log li{grid-template-columns:70px minmax(0,1fr);gap:10px}
+}
+@media (max-width:760px){
+  .rail-left{right:calc(50% + 3px)}
+  .rail-right{left:calc(50% + 3px)}
+  .rail-btn .rb-no,body.dock-wide-open .rail-right .rb-no{font-size:12.5px}
+  .rail-btn .rb-short,body.dock-wide-open .rail-right .rb-short{font-size:10.5px;letter-spacing:.04em}
+}
+@media (max-width:760px){ .lk-head-st{display:none} }
+
+.lk-memo .lk-memo-last{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(150,225,255,.14);color:#e9f1fa!important;font-weight:400!important}
+.lk-cap .dim{letter-spacing:.12em}
+
+/* 06 QUANTUM LINK 메뉴만 보랏빛으로 구분 */
+.rail-btn[data-dock="linkPanel"]{
+  --q:#c3b4ff;--q-line:rgba(185,166,255,.38);--q-glow:rgba(185,166,255,.35);
+  border-color:var(--q-line);
+  background:linear-gradient(135deg,rgba(60,44,120,.42),rgba(5,13,30,.6) 70%);
+}
+.rail-btn[data-dock="linkPanel"]::before{background:var(--q);opacity:.6}
+.rail-btn[data-dock="linkPanel"]::after{background:linear-gradient(90deg,transparent,rgba(195,180,255,.16),transparent)}
+.rail-btn[data-dock="linkPanel"] .rb-txt b{color:#e6defc}
+.rail-btn[data-dock="linkPanel"] .rb-txt small,
+.rail-btn[data-dock="linkPanel"] .rb-stat,
+.rail-btn[data-dock="linkPanel"] .rb-no{color:#a497d6}
+.rail-btn[data-dock="linkPanel"]:hover{border-color:rgba(195,180,255,.6);background:linear-gradient(135deg,rgba(72,54,140,.55),rgba(10,20,46,.65) 70%)}
+.rail-btn[data-dock="linkPanel"].active{
+  border-color:var(--q);
+  background:linear-gradient(135deg,rgba(84,62,160,.6),rgba(16,26,60,.65) 70%);
+  box-shadow:0 0 18px var(--q-glow),inset 0 0 14px rgba(185,166,255,.12);
+}
+.rail-btn[data-dock="linkPanel"].active::before{opacity:1;box-shadow:0 0 10px var(--q)}
+.rail-btn[data-dock="linkPanel"].active .rb-txt b{color:#fff}
+@media (max-width:760px){
+  .rail-btn[data-dock="linkPanel"] .rb-no{color:#e6defc}
+  .rail-btn[data-dock="linkPanel"] .rb-short{color:#a497d6}
+  .rail-btn[data-dock="linkPanel"].active .rb-short{color:var(--q)}
+}

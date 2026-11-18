@@ -48,6 +48,7 @@ const CREW = [
       ['AGE','UNKNOWN <span class="dim">(기재값 30)</span>'],
       ['HEIGHT','188cm'],
       ['LOOKS','<span class="swatch" style="--c:#cfd3da"></span>애쉬그레이 <span class="dim">/</span> <span class="swatch" style="--c:#8b939e"></span>회안'],
+      ['MAJOR','초끈 이론 · 양자 공명 공학'],
       ['STATUS','ACTIVE — 유일 생존'],
       ['LAST LOGIN','NOW']],
     memo:null, flag:'원본 인사 기록 손상 — 이름 복구 불가' },
@@ -98,9 +99,11 @@ const STATUS = [
   { id:'quarters', k:'승무원 구역 조명',      v:'OFF',          d:'마지막 점등 DAY 2,214', s:'off' },
   { id:'terra',    k:'테라포밍 모듈',        v:'STANDBY',      d:'대상 행성 없음', s:'warn' },
   { id:'garden',   k:'배양조',              v:'생존 37종',     d:'급수: 수동 (함장)' },
+  { id:'genebank', k:'유전자 은행',          v:'DAMAGED',      d:'냉동 보관고 손상 — 보존율 3%', s:'warn' },
   { id:'sensor',   k:'센서 어레이',          v:'ONLINE',       d:'' },
   { id:'dilation', k:'중력 시간 지연 계수',   v:'1.0042×',      d:'' },
   { id:'receiver', k:'양자 수신기',          v:'SEARCHING',    d:'외부 기준점 탐색 중', s:'warn' },
+  { id:'remote',   k:'수신측 장비',          v:'구형 프로토콜', d:'양자 공명 통신 초기형 — 호환 모드로 연결' },
   { id:'optical',  k:'광학 송수신기',        v:'STANDBY',      d:'주파수 안정 대기', s:'lock' },
   { id:'proj',     k:'원격 투영 프로토콜',    v:'LOCKED',       d:'수신측 장비 제어권 필요', s:'lock' },
   { id:'ida',      k:'아이다',              v:'BATTERY 87%',  d:'기분: 심심해욤' },
@@ -115,6 +118,8 @@ const LOG = [
   ['DAY 0760','사망자 4명. 격리 구역 확장.'],
   ['DAY 0902','병원체 활동 정지 확인. 늦었다.'],
   ['DAY 1156','벨코프, 선외 작업 중 사고. 같은 날 연속 웜홀 통과로 항법 좌표 손실.'],
+  ['DAY 1161','블랙홀 근접 통과 중 미확인 이상 현상. 시간 계측값 붕괴 — 원 시간대와의 링크 상실.'],
+  ['DAY 1290','냉동 보관고 전력 손실. 유전자 은행 대부분 소실.'],
   ['DAY 1402','동면 포드 7번 오작동. 레예스.'],
   ['DAY 1980','웰스.'],
   ['DAY 2214','마지막 승무원 사망. 생명유지 시스템 1인 기준으로 조정.'],
@@ -124,7 +129,7 @@ const LOG = [
   ['', 'DAY 2891 — DAY 4377 · 기록 없음', 'gap'],
   ['DAY 4378','투영 테스트 #47 — 수신측 장치 없음. 중단.', 'test'],
   ['DAY ????','시간 지연 누적. 날짜 계산 불가.'],
-  ['DAY ????','외부 신호 수신.', 'last'],
+  ['DAY ????','외부 신호 수신. 프로토콜 — 양자 공명 통신 초기형.', 'last'],
 ];
 
 const CAMS = [
@@ -133,7 +138,7 @@ const CAMS = [
     note:'체류 기록 최다 구역. 최근 출입 6시간 전.' },
   { id:'CAM-02', name:'분석실',      en:'ANALYSIS LAB', img:'assets/ship/analysis.webp',
     desc:'좌표 계산 메인프레임이 있는 곳. 벽면 가득 홀로그램 수식이 떠 있다.',
-    note:'좌표 연산 프로세스 상시 가동 중. 중단 이력 없음.' },
+    note:'칼라비-야우 다양체 위상 계산 중 — 접힌 차원 좌표 탐색. 웜홀 입구 고유 진동값 산출 중.' },
   { id:'CAM-03', name:'승무원 구역',  en:'CREW QUARTERS', img:'assets/ship/crew-quarters.webp', dark:true, tag:'LIGHTS OFF',
     desc:'동료들이 쓰던 선실이 늘어선 복도. 지금은 모두 잠겨 있다.',
     note:'조명 OFF. DAY 2,214 이후 출입 기록 없음.' },
@@ -411,6 +416,7 @@ function applySceneFx(s) {
       break;
     case 'wormhole':
       later(() => commNoise(3200, true), 3500);
+      later(lkWobble, 3500);
       later(() => $$('.holo.boot.on, .dock.open').forEach(p => { p.classList.remove('glitch'); void p.offsetWidth; p.classList.add('glitch'); }), 3600);
       dilationTarget = rand(1.2, 1.5);
       break;
@@ -429,6 +435,7 @@ function applySceneFx(s) {
       $('#viewText').classList.add('alert');
       setStatus('receiver', '신호 감쇠', '파장 지연 보정 중', 'warn');
       later(() => commNoise(1800, false), 6000);
+      later(lkWobble, 6000);
       break;
     case 'galaxy':
     default:
@@ -444,6 +451,51 @@ function sensorStutter(n) {
   tick();
 }
 
+
+/* ==========================================================
+   06 QUANTUM LINK — 공명 파형 (함선 측 / 수신측)
+   ========================================================== */
+const lkCv = $('#lkScope'), lkCtx = lkCv ? lkCv.getContext('2d') : null;
+let lkDesync = 0, lkDesyncTarget = 0, lkPhase = 0, lkLast = 0;
+function lkResize() {
+  if (!lkCv) return;
+  const r = lkCv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+  if (!r.width) return;
+  lkCv.width = r.width * d; lkCv.height = r.height * d; lkCtx.setTransform(d, 0, 0, d, 0, 0);
+}
+function lkDraw(t) {
+  if (!lkCv || !$('#linkPanel').classList.contains('open')) { lkLast = t; return; }
+  if (!lkCv.width || lkCv.width < 10) lkResize();
+  const dt = Math.min(64, t - lkLast || 16); lkLast = t;
+  lkDesync += (lkDesyncTarget - lkDesync) * .04;
+  lkPhase += dt * .0016;
+  const w = lkCv.clientWidth, h = lkCv.clientHeight, mid = h / 2, amp = h * .3;
+  lkCtx.clearRect(0, 0, w, h);
+  const wave = (shift, col, alpha) => {
+    lkCtx.beginPath();
+    for (let x = 0; x <= w; x += 3) {
+      const u = x / w * Math.PI * 6;
+      const y = mid + Math.sin(u - lkPhase + shift) * amp * (.85 + .15 * Math.sin(u * .3 + lkPhase * .4));
+      x ? lkCtx.lineTo(x, y) : lkCtx.moveTo(x, y);
+    }
+    lkCtx.strokeStyle = col; lkCtx.globalAlpha = alpha; lkCtx.lineWidth = 1.6;
+    lkCtx.shadowColor = col; lkCtx.shadowBlur = 6; lkCtx.stroke(); lkCtx.globalAlpha = 1;
+  };
+  wave(0, '#9eeaff', .95);
+  wave(lkDesync * 1.6 + Math.sin(t / 1300) * .025, '#ffbe6e', .75);
+  const sync = Math.max(0, 99.7 - lkDesync * 38 + Math.sin(t / 900) * .08);
+  $('#lkSync').textContent = sync.toFixed(1) + '%';
+}
+function lkTick() {
+  if (!$('#lkCoh')) return;
+  $('#lkCoh').textContent = (97.8 + Math.random() * .7 - lkDesync * 6).toFixed(1) + '%';
+}
+setInterval(lkTick, 1400);
+addEventListener('resize', lkResize);
+function lkWobble() {            // 웜홀 등 간섭 때 두 파형이 잠깐 어긋났다 재동기화
+  lkDesyncTarget = 1;
+  setTimeout(() => { lkDesyncTarget = 0; }, 2600);
+}
 
 /* ==========================================================
    먼지/별 입자
@@ -769,6 +821,7 @@ function showDock(id) {
   openDock = d;
   const side = d.classList.contains('dock-right') ? 'right' : 'left';
   d.classList.remove('open'); void d.offsetWidth; d.classList.add('open');
+  if (id === 'linkPanel') requestAnimationFrame(lkResize);
   document.body.classList.add('dock-' + side + '-open', 'dock-open');
   document.body.classList.toggle('dock-wide-open', d.classList.contains('full'));
   $$('.rail-btn').forEach(b => {
@@ -819,6 +872,7 @@ requestAnimationFrame(noiseLoop);
 
 (function frame(t) {
   drawScope(t);
+  lkDraw(t);
   if (!reduceMotion) drawDust();
   requestAnimationFrame(frame);
 })(0);

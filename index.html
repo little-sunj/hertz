@@ -117,12 +117,17 @@
     <button class="rail-btn" data-dock="statusPanel" aria-expanded="false">
       <span class="rb-no mono">04<i class="rb-short">SYS</i></span>
       <span class="rb-txt"><b class="mono">SYSTEM STATUS</b><small>함선 상태</small></span>
-      <span class="rb-stat mono" id="rbStatus">11</span>
+      <span class="rb-stat mono" id="rbStatus">13</span>
     </button>
     <button class="rail-btn" data-dock="navPanel" aria-expanded="false">
       <span class="rb-no mono">05<i class="rb-short">NAV</i></span>
       <span class="rb-txt"><b class="mono">NAVIGATION</b><small>항법</small></span>
       <span class="rb-stat mono warn">LOST</span>
+    </button>
+    <button class="rail-btn" data-dock="linkPanel" aria-expanded="false">
+      <span class="rb-no mono">06<i class="rb-short">LINK</i></span>
+      <span class="rb-txt"><b class="mono">QUANTUM LINK</b><small>양자 통신</small></span>
+      <span class="rb-stat mono">CH-01</span>
     </button>
   </nav>
 
@@ -189,12 +194,74 @@
       <div class="mono nav-row"><span class="dim">POSITION</span><span class="warn">LOST</span></div>
       <div class="mono nav-row"><span class="dim">SECTOR</span><span>UNKNOWN</span></div>
       <div class="mono nav-row"><span class="dim">HEADING</span><span class="dim">— 항로 미정</span></div>
+      <div class="mono nav-row"><span class="dim">NAV MODE</span><span>웜홀 도약</span></div>
+      <div class="mono nav-row"><span class="dim">TEMPORAL JUMP</span><span class="dim">지원 안 함</span></div>
       <div class="mono nav-row"><span class="dim">REFERENCE POINT</span><span id="refPoint">1 DETECTED</span></div>
+      <div class="mono nav-row"><span class="dim">REF. STATE</span><span class="cy">이동 중 — 실시간 보정</span></div>
       <div class="nav-sep"></div>
-      <p class="mono dim nav-cap">COORDINATE RECALCULATION</p>
+      <p class="mono dim nav-cap">TEMPORAL COORDINATE RECALCULATION</p>
       <div class="coord-bar"><i id="coordBar"></i></div>
       <div class="mono nav-row"><span class="dim">ANCHOR SIGNAL</span><span class="cy" id="anchorSig">STABLE</span></div>
-      <p class="nav-note">외부 기준점 1개 확보. 연산 지속 중.</p>
+      <p class="nav-note">외부 기준점 1개 확보. 공간 좌표가 아닌 시간 좌표로 재계산 중.</p>
+    </div>
+  </div>
+
+  <div class="holo dock dock-right" id="linkPanel" role="dialog" aria-label="QUANTUM LINK">
+    <div class="holo-head">
+      <span class="mono">06 · QUANTUM LINK</span>
+      <span class="head-r"><span class="mono dim lk-head-st">● LIVE · CH-01</span><button class="dock-close mono" aria-label="닫기">✕</button></span>
+    </div>
+    <div class="dock-body link-body">
+
+      <section class="lk-sec">
+        <p class="lk-cap mono">LINK STATUS</p>
+        <div class="lk-grid">
+          <div class="lk-row"><span class="mono dim">PROTOCOL</span><span>QRC — 양자 공명 통신</span></div>
+          <div class="lk-row"><span class="mono dim">LINK</span><span class="ok mono">● ESTABLISHED</span></div>
+          <div class="lk-row"><span class="mono dim">수신측 단말</span><span>초기형 · 호환 모드</span></div>
+          <div class="lk-row"><span class="mono dim">얽힘 쌍 결맞음</span><span class="mono" id="lkCoh">98.2%</span></div>
+          <div class="lk-row"><span class="mono dim">신호 지연</span><span class="mono">0.000s</span></div>
+          <div class="lk-row"><span class="mono dim">시간 편차</span><span class="warn">음수 — 수신측이 과거</span></div>
+        </div>
+      </section>
+
+      <section class="lk-sec">
+        <div class="lk-cap-row"><p class="lk-cap mono">RESONANCE <span class="dim">· STRING MODE n=7</span></p><span class="mono lk-sync">진동 동기율 <b id="lkSync">99.7%</b></span></div>
+        <div class="lk-scope"><canvas id="lkScope"></canvas>
+          <span class="lk-leg mono a">─ 함선 측</span><span class="lk-leg mono b">─ 수신측</span></div>
+      </section>
+
+      <section class="lk-sec">
+        <p class="lk-cap mono">CHANNEL</p>
+        <div class="lk-grid">
+          <div class="lk-row"><span class="mono dim">경유 공간</span><span>여분 차원 (6D 축약)</span></div>
+          <div class="lk-row"><span class="mono dim">차원 투영</span><span class="mono">10D → 4D</span></div>
+          <div class="lk-row"><span class="mono dim">통로 직경</span><span class="mono">3.2 × 10⁻¹⁵ m</span></div>
+          <div class="lk-row"><span class="mono dim">통과 가능</span><span>정보 패킷</span></div>
+          <div class="lk-row"><span class="mono dim">물질 전송</span><span class="warn">불가 — 통로 협소</span></div>
+          <div class="lk-row"><span class="mono dim">통로 확장 시퀀스</span><span class="lock mono">LOCKED <small>입구 고유 진동값 미산출</small></span></div>
+        </div>
+      </section>
+
+      <section class="lk-sec">
+        <p class="lk-cap mono">LINK EVENT LOG <span class="dim">— AUTO</span></p>
+        <ol class="lk-log mono">
+          <li><span>DAY 1161</span>블랙홀 근접 통과 · 웜홀 입구 B 시간 편차 급증 · 원 시간대 링크 소실</li>
+          <li><span>DAY ????</span>미확인 얽힘 신호 감지</li>
+          <li><span>DAY ????</span>얽힘 입자 현 진동 모드 일치 확인 (n=7)</li>
+          <li><span>DAY ????</span>프로토콜 대조 — 함선 통신 코어 계열 원형과 일치</li>
+          <li><span>DAY ????</span>진동 동기화 시도 312회 → 성공 · 링크 수립</li>
+          <li class="now"><span>NOW</span>현재 대역폭: 텍스트 전송만 가능</li>
+        </ol>
+      </section>
+
+      <section class="lk-memo">
+        <p class="mono">MEMO — CAPTAIN</p>
+        <p>교과서에서나 보던 프로토콜이다.</p>
+        <p>정보만 지나간다. 사람은 못 지나간다.</p>
+        <p class="lk-memo-last">만물은 떨리는 현이다. 같은 음으로 떨리면, 아무리 멀어도 이어진다.</p>
+      </section>
+
     </div>
   </div>
 </main>
